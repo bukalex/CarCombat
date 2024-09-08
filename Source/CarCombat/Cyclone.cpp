@@ -62,10 +62,24 @@ void ACyclone::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void ACyclone::MoveForward(float Value)
 {
+	if (Value == 0) return;
 
+	for (UStaticMeshComponent* WheelMesh : WheelMeshes)
+	{
+		WheelMesh->AddAngularImpulseInRadians(WheelMesh->GetRightVector() * FMath::Sign(FVector::DotProduct(WheelMesh->GetRightVector(), Body->GetRightVector())) * Value * MovementForce);
+	}
 }
 
 void ACyclone::TurnRight(float Value)
 {
+	if (Value == 0) return;
 
+	float DeltaAngle = SteeringRate * Value * FApp::GetDeltaTime();
+	if (FMath::Abs(CurrentSteering + DeltaAngle) > SteeringLimit) return;
+
+	CurrentSteering += DeltaAngle;
+	for (int32 number : SteeringWheelNumbers)
+	{
+		
+	}
 }

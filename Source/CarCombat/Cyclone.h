@@ -20,6 +20,7 @@ public:
 
 protected:
 	int32 WheelCount = 6;
+	float CurrentSteering = 0;
 
 	UPROPERTY(EditAnywhere)
 	float MovementForce = 500;
@@ -35,6 +36,15 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	TArray<UPhysicsConstraintComponent*> WheelConstraints;
+
+	UPROPERTY(EditAnywhere)
+	TArray<int32> SteeringWheelNumbers;
+
+	UPROPERTY(EditAnywhere)
+	float SteeringRate = 10;
+
+	UPROPERTY(EditAnywhere)
+	float SteeringLimit = 25;
 
 	UPROPERTY(EditAnywhere)
 	USpringArmComponent* SpringArm;
