@@ -99,5 +99,9 @@ void ACyclone::CameraPitchInput(float Value)
 {
 	if (Value == 0) return;
 
-	Camera->AddLocalRotation(FQuat(FVector(0, 1, 0), CameraRotationRate * Value * FApp::GetDeltaTime()));
+	float DeltaAngle = CameraRotationRate * Value * FApp::GetDeltaTime();
+	if (Camera->GetRelativeRotation().Pitch < CameraMinAngle && DeltaAngle > 0) return;
+	if (Camera->GetRelativeRotation().Pitch > CameraMaxAngle && DeltaAngle < 0) return;
+
+	Camera->AddLocalRotation(FQuat(FVector(0, 1, 0), DeltaAngle));
 }
