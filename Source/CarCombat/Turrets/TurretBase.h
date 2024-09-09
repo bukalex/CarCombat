@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "Components/SphereComponent.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "TurretBase.generated.h"
@@ -16,6 +17,18 @@ public:
 	ATurretBase();
 
 protected:
+	UPROPERTY(EditAnywhere)
+	FVector RotationLimits;
+
+	UPROPERTY(EditAnywhere)
+	FVector FieldOfView;
+
+	UPROPERTY(EditAnywhere)
+	UStaticMeshComponent* BaseMesh;
+
+	UPROPERTY(EditAnywhere)
+	USphereComponent* AttackZone;
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
