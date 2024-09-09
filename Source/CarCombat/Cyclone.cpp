@@ -58,6 +58,9 @@ void ACyclone::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &ACyclone::MoveForward);
 	PlayerInputComponent->BindAxis("TurnRight", this, &ACyclone::TurnRight);
+	
+	PlayerInputComponent->BindAxis("CameraYaw", this, &ACyclone::CameraYawInput);
+	PlayerInputComponent->BindAxis("CameraPitch", this, &ACyclone::CameraPitchInput);
 }
 
 void ACyclone::MoveForward(float Value)
@@ -80,6 +83,21 @@ void ACyclone::TurnRight(float Value)
 	CurrentSteering += DeltaAngle;
 	for (int32 number : SteeringWheelNumbers)
 	{
-		
+		//WheelConstraints[number - 1]->AddLocalRotation(FQuat(Body->GetUpVector(), DeltaAngle));
+		//WheelMeshes[number - 1]->AddLocalRotation(FQuat(Body->GetUpVector(), DeltaAngle));
 	}
+}
+
+void ACyclone::CameraYawInput(float Value)
+{
+	if (Value == 0) return;
+
+	SpringArm->AddRelativeRotation(FQuat(FVector(0, 0, 1), CameraRotationRate * Value * FApp::GetDeltaTime()));
+}
+
+void ACyclone::CameraPitchInput(float Value)
+{
+	if (Value == 0) return;
+
+	Camera->AddLocalRotation(FQuat(FVector(0, 1, 0), CameraRotationRate * Value * FApp::GetDeltaTime()));
 }

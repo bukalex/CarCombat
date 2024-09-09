@@ -52,6 +52,15 @@ protected:
 	UPROPERTY(EditAnywhere)
 	UCameraComponent* Camera;
 
+	UPROPERTY(EditAnywhere)
+	float CameraRotationRate = 1;
+
+	UPROPERTY(EditAnywhere)
+	float CameraMinAngle;
+
+	UPROPERTY(EditAnywhere)
+	float CameraMaxAngle;
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
@@ -67,4 +76,10 @@ public:
 
 	UFUNCTION()
 	void TurnRight(float Value);
+
+	UFUNCTION()
+	void CameraYawInput(float Value);
+
+	UFUNCTION()
+	void CameraPitchInput(float Value);
 };
