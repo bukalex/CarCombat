@@ -105,3 +105,8 @@ void ACyclone::CameraPitchInput(float Value)
 
 	Camera->AddLocalRotation(FQuat(FVector(0, 1, 0), DeltaAngle));
 }
+
+FVector ACyclone::GetTargetLocation()
+{
+	return Body->GetComponentLocation() + Body->GetUpVector() * 20;
+}

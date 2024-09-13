@@ -2,13 +2,15 @@
 
 #pragma once
 
+#include "CarCombat/Interfaces/TurretTargetable.h"
+#include "CarCombat/Interfaces/Destroyable.h"
 #include "Components/SphereComponent.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "TurretBase.generated.h"
 
 UCLASS()
-class CARCOMBAT_API ATurretBase : public AActor
+class CARCOMBAT_API ATurretBase : public AActor, public IDestroyable
 {
 	GENERATED_BODY()
 	
@@ -17,11 +19,18 @@ public:
 	ATurretBase();
 
 protected:
-	UPROPERTY(EditAnywhere)
-	FVector RotationLimits;
+	ITurretTargetable* Target;
+	FColor AimingLineColor = FColor::Red;
+	bool bLockedOn = true;
 
 	UPROPERTY(EditAnywhere)
-	FVector FieldOfView;
+	float RotationLimit;
+
+	UPROPERTY(EditAnywhere)
+	float AimingPrecisionAngle = 1;
+
+	UPROPERTY(EditAnywhere)
+	float RotationSpeed = 5;
 
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* BaseMesh;
@@ -31,9 +40,19 @@ protected:
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void Aim(float DeltaTime);
+	virtual void CheckIfLockedOnTarget();
+	virtual bool IsTargetWithinRotationLimit();
+	virtual bool IsTargetVisible();
+	virtual USceneComponent* GetFiringComponent();
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UFUNCTION()
+	void OnAttackZoneEnter(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void OnAttackZoneExit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 };

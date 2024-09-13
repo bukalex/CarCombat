@@ -23,4 +23,9 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* GunMesh;
+
+	virtual void Aim(float DeltaTime) override;
+	virtual void CheckIfLockedOnTarget() override;
+	virtual bool IsTargetWithinRotationLimit() override;
+	virtual USceneComponent* GetFiringComponent() override;
 };

@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "Interfaces/TurretTargetable.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "PhysicsEngine/PhysicsConstraintComponent.h"
@@ -10,7 +11,7 @@
 #include "Cyclone.generated.h"
 
 UCLASS()
-class CARCOMBAT_API ACyclone : public APawn
+class CARCOMBAT_API ACyclone : public APawn, public ITurretTargetable
 {
 	GENERATED_BODY()
 
@@ -70,6 +71,8 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	virtual FVector GetTargetLocation() override;
 
 	UFUNCTION()
 	void MoveForward(float Value);

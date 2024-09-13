@@ -11,3 +11,53 @@ AMachineGunTurret::AMachineGunTurret()
 	GunMesh = CreateDefaultSubobject<UStaticMeshComponent>("Gun Mesh");
 	GunMesh->SetupAttachment(JointMesh);
 }
+
+void AMachineGunTurret::Aim(float DeltaTime)
+{
+	Super::Aim(DeltaTime);
+
+	if (!IsTargetWithinRotationLimit())
+	{
+		AimingLineColor = FColor::Red;
+		return;
+	}
+	if (!IsTargetVisible())
+	{
+		AimingLineColor = FColor::Red;
+		return;
+	}
+	if (bLockedOn)
+	{
+		AimingLineColor = FColor::Blue;
+		return;
+	}
+	AimingLineColor = FColor::Green;
+
+	FVector LookDirection = FMath::VInterpNormalRotationTo(
+		JointMesh->GetForwardVector(), 
+		Target->GetTargetDirection(JointMesh->GetComponentLocation()),
+		DeltaTime, 
+		RotationSpeed);
+
+	JointMesh->SetWorldRotation(LookDirection.ToOrientationRotator());
+}
+
+void AMachineGunTurret::CheckIfLockedOnTarget()
+{
+	if (!Target) return;
+
+	bLockedOn = Target->GetAngleToTarget(Target->GetTargetDirection(JointMesh->GetComponentLocation()), JointMesh->GetForwardVector()) < AimingPrecisionAngle;
+}
+
+bool AMachineGunTurret::IsTargetWithinRotationLimit()
+{
+	if (!Target) return false;
+	if (Target->GetAngleToTarget(Target->GetTargetDirection(JointMesh->GetComponentLocation()), BaseMesh->GetForwardVector()) > RotationLimit) return false;
+
+	return true;
+}
+
+USceneComponent* AMachineGunTurret::GetFiringComponent()
+{
+	return JointMesh;
+}

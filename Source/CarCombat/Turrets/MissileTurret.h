@@ -20,4 +20,9 @@ public:
 protected:
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* LauncherMesh;
+
+	virtual void Aim(float DeltaTime) override;
+	virtual void CheckIfLockedOnTarget() override;
+	virtual bool IsTargetWithinRotationLimit() override;
+	virtual USceneComponent* GetFiringComponent() override;
 };
