@@ -26,12 +26,7 @@ void AMachineGunTurret::Aim(float DeltaTime)
 		AimingLineColor = FColor::Red;
 		return;
 	}
-	if (bLockedOn)
-	{
-		AimingLineColor = FColor::Blue;
-		return;
-	}
-	AimingLineColor = FColor::Green;
+	bLockedOn ? FColor::Blue : FColor::Green;
 
 	FVector LookDirection = FMath::VInterpNormalRotationTo(
 		JointMesh->GetForwardVector(), 

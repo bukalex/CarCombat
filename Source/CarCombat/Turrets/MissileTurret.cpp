@@ -23,12 +23,7 @@ void AMissileTurret::Aim(float DeltaTime)
 		AimingLineColor = FColor::Red;
 		return;
 	}
-	if (bLockedOn)
-	{
-		AimingLineColor = FColor::Blue;
-		return;
-	}
-	AimingLineColor = FColor::Green;
+	AimingLineColor = bLockedOn ? FColor::Blue : FColor::Green;
 
 	FVector LookDirection = FMath::VInterpNormalRotationTo(
 		LauncherMesh->GetForwardVector(),
