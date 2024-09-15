@@ -22,6 +22,8 @@ protected:
 	ITurretTargetable* Target;
 	FColor AimingLineColor = FColor::Red;
 	bool bLockedOn = true;
+	bool bTargetWithinRotationLimit = false;
+	bool bTargetVisible = false;
 
 	UPROPERTY(EditAnywhere)
 	float RotationLimit;

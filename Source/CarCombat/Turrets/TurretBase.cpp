@@ -39,6 +39,12 @@ void ATurretBase::Aim(float DeltaTime)
 	if (!Target) return;
 	if (!GetWorld()) return;
 
+	bTargetWithinRotationLimit = IsTargetWithinRotationLimit();
+	bTargetVisible = IsTargetVisible();
+
+	if (!bTargetWithinRotationLimit || !bTargetVisible) AimingLineColor = FColor::Red;
+	else AimingLineColor = bLockedOn ? FColor::Blue : FColor::Green;
+
 	DrawDebugLine(GetWorld(), GetFiringComponent()->GetComponentLocation(), Target->GetTargetLocation(), AimingLineColor);
 }
 

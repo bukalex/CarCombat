@@ -16,17 +16,9 @@ void AMachineGunTurret::Aim(float DeltaTime)
 {
 	Super::Aim(DeltaTime);
 
-	if (!IsTargetWithinRotationLimit())
-	{
-		AimingLineColor = FColor::Red;
-		return;
-	}
-	if (!IsTargetVisible())
-	{
-		AimingLineColor = FColor::Red;
-		return;
-	}
-	bLockedOn ? FColor::Blue : FColor::Green;
+	if (!Target) return;
+	if (!bTargetWithinRotationLimit) return;
+	if (!bTargetVisible) return;
 
 	FVector LookDirection = FMath::VInterpNormalRotationTo(
 		JointMesh->GetForwardVector(), 
@@ -41,7 +33,7 @@ void AMachineGunTurret::CheckIfLockedOnTarget()
 {
 	if (!Target) return;
 
-	bLockedOn = Target->GetAngleToTarget(Target->GetTargetDirection(JointMesh->GetComponentLocation()), JointMesh->GetForwardVector()) < AimingPrecisionAngle;
+	bLockedOn = Target->GetAngleToTarget(Target->GetTargetDirection(GunMesh->GetComponentLocation()), GunMesh->GetForwardVector()) < AimingPrecisionAngle;
 }
 
 bool AMachineGunTurret::IsTargetWithinRotationLimit()

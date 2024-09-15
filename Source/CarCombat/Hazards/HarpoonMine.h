@@ -23,16 +23,16 @@ public:
 protected:
 	ITurretTargetable* Target;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* BodyMesh;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere)
 	UCableComponent* Cable;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere)
 	UPhysicsConstraintComponent* Constraint;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere)
 	USphereComponent* Trigger;
 
 	// Called when the game starts or when spawned

@@ -13,17 +13,9 @@ void AMissileTurret::Aim(float DeltaTime)
 {
 	Super::Aim(DeltaTime);
 
-	if (!IsTargetWithinRotationLimit())
-	{
-		AimingLineColor = FColor::Red;
-		return;
-	}
-	if (!IsTargetVisible())
-	{
-		AimingLineColor = FColor::Red;
-		return;
-	}
-	AimingLineColor = bLockedOn ? FColor::Blue : FColor::Green;
+	if (!Target) return;
+	if (!bTargetWithinRotationLimit) return;
+	if (!bTargetVisible) return;
 
 	FVector LookDirection = FMath::VInterpNormalRotationTo(
 		LauncherMesh->GetForwardVector(),
