@@ -23,6 +23,7 @@ class CARCOMBAT_API ITurretTargetable
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	virtual FVector GetTargetLocation() = 0;
+	virtual UPrimitiveComponent* GetRootComponent() = 0;
 
 	virtual FVector GetTargetDirection(const FVector& TurretLocation, bool bNormalized = true);
 	virtual float GetAngleToTarget(const FVector& TargetDirection, const FVector& LookVector, bool bGetInDegrees = true);

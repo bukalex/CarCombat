@@ -48,6 +48,6 @@ void AHarpoonMine::OnTriggerEnter(UPrimitiveComponent* OverlappedComponent, AAct
 	Cable->SetAttachEndToComponent(OtherComp);
 	Cable->SetVisibility(true);
 	
-	Constraint->SetConstrainedComponents(OtherComp, NAME_None, BodyMesh, NAME_None);
+	Constraint->SetConstrainedComponents(Target->GetRootComponent(), NAME_None, BodyMesh, NAME_None);
 	Constraint->SetConstraintReferencePosition(EConstraintFrame::Frame1, FVector::ZeroVector);
 }

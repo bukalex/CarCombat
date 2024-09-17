@@ -22,9 +22,17 @@ public:
 protected:
 	int32 WheelCount = 6;
 	float CurrentSteering = 0;
+	TArray<int32> SteeringWheelNumbers = {1, 4};
+	TArray<bool> WheelGroundCheckers;
 
 	UPROPERTY(EditAnywhere)
 	float MovementForce = 500;
+
+	UPROPERTY(EditAnywhere)
+	float MaxVelocity = 500;
+
+	UPROPERTY(EditAnywhere)
+	float MaxSurfaceAngle = 45;
 
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* Body;
@@ -39,7 +47,7 @@ protected:
 	TArray<UPhysicsConstraintComponent*> WheelConstraints;
 
 	UPROPERTY(EditAnywhere)
-	TArray<int32> SteeringWheelNumbers;
+	TArray<UPhysicsConstraintComponent*> SteeringConstraints;
 
 	UPROPERTY(EditAnywhere)
 	float SteeringRate = 10;
@@ -73,6 +81,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	virtual FVector GetTargetLocation() override;
+	virtual UPrimitiveComponent* GetRootComponent() override;
 
 	UFUNCTION()
 	void MoveForward(float Value);
@@ -85,4 +94,10 @@ public:
 
 	UFUNCTION()
 	void CameraPitchInput(float Value);
+
+	UFUNCTION()
+	void OnWheelGrounded(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
+	UFUNCTION()
+	void OnWheelJumped(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 };
