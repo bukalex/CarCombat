@@ -24,6 +24,7 @@ protected:
 	float CurrentSteering = 0;
 	TArray<int32> SteeringWheelNumbers = {1, 4};
 	TArray<bool> WheelGroundCheckers;
+	TArray<float> WheelLastContactTimers;
 
 	UPROPERTY(EditAnywhere)
 	float MovementForce = 500;
@@ -36,6 +37,12 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* Body;
+
+	UPROPERTY(EditAnywhere)
+	UStaticMeshComponent* MachineGunJointMesh;
+
+	UPROPERTY(EditAnywhere)
+	UStaticMeshComponent* MachineGunMesh;
 
 	UPROPERTY(EditAnywhere)
 	TArray<USceneComponent*> WheelComponentGroups;
@@ -97,7 +104,4 @@ public:
 
 	UFUNCTION()
 	void OnWheelGrounded(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
-
-	UFUNCTION()
-	void OnWheelJumped(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 };

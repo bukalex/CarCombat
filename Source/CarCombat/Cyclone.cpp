@@ -22,9 +22,9 @@ ACyclone::ACyclone()
 		WheelMeshes.Last()->SetupAttachment(WheelComponentGroups.Last());
 		WheelMeshes.Last()->SetSimulatePhysics(true);
 		WheelMeshes.Last()->OnComponentHit.AddDynamic(this, &ACyclone::OnWheelGrounded);
-		WheelMeshes.Last()->OnComponentEndOverlap.AddDynamic(this, &ACyclone::OnWheelJumped);
 
 		WheelGroundCheckers.Add(false);
+		WheelLastContactTimers.Add(0);
 
 		WheelConstraints.Add(CreateDefaultSubobject<UPhysicsConstraintComponent>(FName("Physics Constraint " + FString::FromInt(i + 1))));
 		WheelConstraints.Last()->SetupAttachment(WheelComponentGroups.Last());
@@ -40,6 +40,12 @@ ACyclone::ACyclone()
 		SteeringConstraints.Last()->ComponentName1.ComponentName = WheelMeshes.Last()->GetFName();
 		SteeringConstraints.Last()->ComponentName2.ComponentName = Body->GetFName();
 	}
+
+	MachineGunJointMesh = CreateDefaultSubobject<UStaticMeshComponent>("Machine Gun Joint");
+	MachineGunJointMesh->SetupAttachment(Body);
+
+	MachineGunMesh = CreateDefaultSubobject<UStaticMeshComponent>("Machine Gun");
+	MachineGunMesh->SetupAttachment(MachineGunJointMesh);
 
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>("Spring Arm");
 	SpringArm->SetupAttachment(Body);
@@ -61,10 +67,10 @@ void ACyclone::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	for (UStaticMeshComponent* WheelMesh : WheelMeshes)
+	for (int32 i = 0; i < WheelCount; i++)
 	{
-		if (WheelGroundCheckers[WheelMeshes.IndexOfByKey(WheelMesh)]) GEngine->AddOnScreenDebugMessage(-1, 0.1, FColor::Green, "aaa");
-		else GEngine->AddOnScreenDebugMessage(-1, 0.1, FColor::Red, "aaa");
+		WheelLastContactTimers[i] += DeltaTime;
+		if (WheelLastContactTimers[i] > 0.1f) WheelGroundCheckers[i] = false;
 	}
 }
 
@@ -132,12 +138,7 @@ void ACyclone::OnWheelGrounded(UPrimitiveComponent* HitComponent, AActor* OtherA
 	Angle = FMath::RadiansToDegrees(Angle);
 
 	WheelGroundCheckers[WheelMeshes.IndexOfByKey(HitComponent)] = Angle <= MaxSurfaceAngle;
-}
-
-void ACyclone::OnWheelJumped(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-	WheelGroundCheckers[WheelMeshes.IndexOfByKey(OverlappedComponent)] = false;
-	GEngine->AddOnScreenDebugMessage(-1, 0.1, FColor::Red, OtherActor->GetFName().ToString());
+	WheelLastContactTimers[WheelMeshes.IndexOfByKey(HitComponent)] = 0;
 }
 
 FVector ACyclone::GetTargetLocation()
