@@ -22,9 +22,11 @@ public:
 protected:
 	int32 WheelCount = 6;
 	float CurrentSteering = 0;
+	float MaxAimDistance = 100000;
 	TArray<int32> SteeringWheelNumbers = {1, 4};
 	TArray<bool> WheelGroundCheckers;
 	TArray<float> WheelLastContactTimers;
+	FVector AimLocation = FVector::ZeroVector;
 
 	UPROPERTY(EditAnywhere)
 	float MovementForce = 500;
@@ -77,8 +79,14 @@ protected:
 	UPROPERTY(EditAnywhere)
 	float CameraMaxAngle;
 
+	UPROPERTY(EditAnywhere)
+	float MachineGunRotationRate;
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	virtual void GetAimLocation();
+	virtual void Aim(float DeltaTime);
 
 public:	
 	// Called every frame

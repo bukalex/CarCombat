@@ -72,6 +72,9 @@ void ACyclone::Tick(float DeltaTime)
 		WheelLastContactTimers[i] += DeltaTime;
 		if (WheelLastContactTimers[i] > 0.1f) WheelGroundCheckers[i] = false;
 	}
+
+	GetAimLocation();
+	Aim(DeltaTime);
 }
 
 // Called to bind functionality to input
@@ -149,4 +152,48 @@ FVector ACyclone::GetTargetLocation()
 UPrimitiveComponent* ACyclone::GetRootComponent()
 {
 	return Body;
+}
+
+void ACyclone::GetAimLocation()
+{
+	if (!GetWorld()) return;
+
+	FHitResult Hit;
+	FCollisionQueryParams CollisionQueryParams = FCollisionQueryParams();
+	CollisionQueryParams.AddIgnoredActor(this);
+
+	bool bActorHit = GetWorld()->LineTraceSingleByChannel(
+		Hit, 
+		Camera->GetComponentLocation() + Camera->GetForwardVector() * 100, 
+		Camera->GetComponentLocation() + Camera->GetForwardVector() * MaxAimDistance,
+		ECollisionChannel::ECC_Pawn, 
+		CollisionQueryParams);
+	if (!bActorHit) return;
+
+	AimLocation = Hit.ImpactPoint;
+}
+
+void ACyclone::Aim(float DeltaTime)
+{
+	if (AimLocation.IsZero()) return;
+
+	FVector LookDirection = FMath::VInterpNormalRotationTo(
+		MachineGunMesh->GetForwardVector(),
+		(AimLocation - MachineGunMesh->GetComponentLocation()).GetUnsafeNormal(),
+		DeltaTime,
+		MachineGunRotationRate);
+	FVector BaseLookDirection = FVector::VectorPlaneProject(LookDirection, Body->GetUpVector());
+	FVector MachineGunLookDirection = FVector::VectorPlaneProject(LookDirection, MachineGunJointMesh->GetRightVector());
+
+	//MachineGunJointMesh->AddRelativeRotation(FQuat::FindBetweenNormals(MachineGunJointMesh->GetForwardVector(), BaseLookDirection.GetUnsafeNormal()));
+	//MachineGunJointMesh->SetRelativeRotation(FQuat(
+	//	0, 
+	//	0, 
+	//	FQuat::FindBetweenNormals(Body->GetForwardVector(), BaseLookDirection.GetUnsafeNormal()).Z,
+	//	FQuat::FindBetweenNormals(Body->GetForwardVector(), BaseLookDirection.GetUnsafeNormal()).W));
+	//MachineGunMesh->SetRelativeRotation(FQuat(
+	//	0, 
+	//	FQuat::FindBetweenNormals(MachineGunJointMesh->GetForwardVector(), MachineGunLookDirection).Y,
+	//	0, 
+	//	FQuat::FindBetweenNormals(MachineGunJointMesh->GetForwardVector(), MachineGunLookDirection).W));
 }
