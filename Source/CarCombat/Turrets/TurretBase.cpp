@@ -32,6 +32,7 @@ void ATurretBase::Tick(float DeltaTime)
 
 	Aim(DeltaTime);
 	CheckIfLockedOnTarget();
+	Fire(DeltaTime);
 }
 
 void ATurretBase::Aim(float DeltaTime)
@@ -95,4 +96,12 @@ void ATurretBase::OnAttackZoneExit(UPrimitiveComponent* OverlappedComponent, AAc
 	if (Target != Cast<ITurretTargetable>(OtherActor)) return;
 	
 	Target = nullptr;
+}
+
+void ATurretBase::Fire(float DeltaTime)
+{
+	if (CooldownTimer > 0)
+	{
+		CooldownTimer -= DeltaTime;
+	}
 }

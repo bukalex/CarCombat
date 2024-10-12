@@ -24,6 +24,10 @@ protected:
 	bool bLockedOn = true;
 	bool bTargetWithinRotationLimit = false;
 	bool bTargetVisible = false;
+	float CooldownTimer = 0;
+
+	UPROPERTY(EditAnywhere)
+	float Range = 20000;
 
 	UPROPERTY(EditAnywhere)
 	float RotationLimit;
@@ -35,6 +39,12 @@ protected:
 	float RotationSpeed = 5;
 
 	UPROPERTY(EditAnywhere)
+	float CooldownDuration = 1;
+
+	UPROPERTY(EditAnywhere)
+	float Damage = 10;
+
+	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* BaseMesh;
 
 	UPROPERTY(EditAnywhere)
@@ -42,12 +52,13 @@ protected:
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void Fire(float DeltaTime);
 	virtual void Aim(float DeltaTime);
 	virtual void CheckIfLockedOnTarget();
 	virtual bool IsTargetWithinRotationLimit();
 	virtual bool IsTargetVisible();
 	virtual USceneComponent* GetFiringComponent();
-
+	
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

@@ -18,14 +18,30 @@ public:
 	AMachineGunTurret();
 
 protected:
+	int ShotCounter = -1;
+
+	UPROPERTY(EditAnywhere)
+	int VFXFrequency = 5;
+
+	UPROPERTY(EditAnywhere)
+	int FireAccuracy = 5;
+
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* JointMesh;
 
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* GunMesh;
 
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AActor> BulletHitMetalVFX;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AActor> BulletHitGroundVFX;
+
 	virtual void Aim(float DeltaTime) override;
 	virtual void CheckIfLockedOnTarget() override;
 	virtual bool IsTargetWithinRotationLimit() override;
 	virtual USceneComponent* GetFiringComponent() override;
+
+	virtual void Fire(float DeltaTime) override;
 };

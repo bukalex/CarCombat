@@ -31,7 +31,11 @@ void AMissileTurret::Aim(float DeltaTime)
 
 void AMissileTurret::CheckIfLockedOnTarget()
 {
-	if (!Target) return;
+	if (!Target)
+	{
+		bLockedOn = false;
+		return;
+	}
 
 	bLockedOn = Target->GetAngleToTarget(
 		FVector::VectorPlaneProject(Target->GetTargetDirection(LauncherMesh->GetComponentLocation()), BaseMesh->GetRightVector()),
@@ -53,4 +57,12 @@ bool AMissileTurret::IsTargetWithinRotationLimit()
 USceneComponent* AMissileTurret::GetFiringComponent()
 {
 	return LauncherMesh;
+}
+
+void AMissileTurret::Fire(float DeltaTime)
+{
+	Super::Fire(DeltaTime);
+
+	if (!bLockedOn) return;
+	if (CooldownTimer > 0) return;
 }

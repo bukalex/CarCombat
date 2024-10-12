@@ -31,7 +31,11 @@ void AMachineGunTurret::Aim(float DeltaTime)
 
 void AMachineGunTurret::CheckIfLockedOnTarget()
 {
-	if (!Target) return;
+	if (!Target)
+	{
+		bLockedOn = false;
+		return;
+	}
 
 	bLockedOn = Target->GetAngleToTarget(Target->GetTargetDirection(GunMesh->GetComponentLocation()), GunMesh->GetForwardVector()) < AimingPrecisionAngle;
 }
@@ -47,4 +51,46 @@ bool AMachineGunTurret::IsTargetWithinRotationLimit()
 USceneComponent* AMachineGunTurret::GetFiringComponent()
 {
 	return JointMesh;
+}
+
+void AMachineGunTurret::Fire(float DeltaTime)
+{
+	Super::Fire(DeltaTime);
+
+	if (!bLockedOn) return;
+	if (CooldownTimer > 0) return;
+
+	ShotCounter = (ShotCounter + 1) % VFXFrequency;
+	CooldownTimer = CooldownDuration;
+
+	FHitResult Hit;
+	FCollisionQueryParams CollisionQueryParams = FCollisionQueryParams();
+	CollisionQueryParams.AddIgnoredActor(this);
+
+	bool bActorHit = GetWorld()->LineTraceSingleByChannel(
+		Hit, 
+		GetFiringComponent()->GetComponentLocation(), 
+		GetFiringComponent()->GetComponentLocation() + GunMesh->GetForwardVector().
+			RotateAngleAxis(-FireAccuracy + rand() % (FireAccuracy * 2 + 1), GunMesh->GetUpVector()).
+			RotateAngleAxis(-FireAccuracy + rand() % (FireAccuracy * 2 + 1), GunMesh->GetRightVector()) * Range,
+		ECollisionChannel::ECC_Pawn, CollisionQueryParams);
+	if (!bActorHit) return;
+
+	IDestroyable* DestroyableActor = Cast<IDestroyable>(Hit.GetActor());
+	if (DestroyableActor)
+	{
+		DestroyableActor->GetDamage(Damage);
+	}
+
+	if (ShotCounter == 0)
+	{
+		if (DestroyableActor)
+		{
+			if (BulletHitMetalVFX) GetWorld()->SpawnActor<AActor>(BulletHitMetalVFX, Hit.ImpactPoint, Hit.ImpactNormal.ToOrientationRotator());
+		}
+		else
+		{
+			if (BulletHitGroundVFX) GetWorld()->SpawnActor<AActor>(BulletHitGroundVFX, Hit.ImpactPoint, Hit.ImpactNormal.ToOrientationRotator());
+		}
+	}
 }

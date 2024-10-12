@@ -25,4 +25,6 @@ protected:
 	virtual void CheckIfLockedOnTarget() override;
 	virtual bool IsTargetWithinRotationLimit() override;
 	virtual USceneComponent* GetFiringComponent() override;
+
+	virtual void Fire(float DeltaTime) override;
 };

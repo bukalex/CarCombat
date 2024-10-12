@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "CarCombatMode.h"
+#include "Interfaces/Destroyable.h"
 #include "Interfaces/TurretTargetable.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
@@ -11,7 +13,7 @@
 #include "Cyclone.generated.h"
 
 UCLASS()
-class CARCOMBAT_API ACyclone : public APawn, public ITurretTargetable
+class CARCOMBAT_API ACyclone : public APawn, public ITurretTargetable, public IDestroyable
 {
 	GENERATED_BODY()
 
@@ -27,6 +29,7 @@ protected:
 	TArray<bool> WheelGroundCheckers;
 	TArray<float> WheelLastContactTimers;
 	FVector AimLocation = FVector::ZeroVector;
+	ACarCombatMode* GameMode;
 
 	UPROPERTY(EditAnywhere)
 	float MovementForce = 500;
@@ -87,6 +90,7 @@ protected:
 
 	virtual void GetAimLocation();
 	virtual void Aim(float DeltaTime);
+	virtual void ValidateGameMode();
 
 public:	
 	// Called every frame
@@ -97,6 +101,7 @@ public:
 
 	virtual FVector GetTargetLocation() override;
 	virtual UPrimitiveComponent* GetRootComponent() override;
+	virtual void GetDamage(float Damage) override;
 
 	UFUNCTION()
 	void MoveForward(float Value);

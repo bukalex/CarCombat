@@ -197,3 +197,22 @@ void ACyclone::Aim(float DeltaTime)
 	//	0, 
 	//	FQuat::FindBetweenNormals(MachineGunJointMesh->GetForwardVector(), MachineGunLookDirection).W));
 }
+
+void ACyclone::GetDamage(float Damage)
+{
+	Health -= Damage;
+	Health = Health >= 0 ? Health : 0;
+
+	ValidateGameMode();
+	if (GameMode)
+	{
+		GameMode->UpdateCarHealth(Health);
+	}
+}
+
+void ACyclone::ValidateGameMode()
+{
+	if (GameMode == GetWorld()->GetAuthGameMode()) return;
+
+	GameMode = Cast<ACarCombatMode>(GetWorld()->GetAuthGameMode());
+}
