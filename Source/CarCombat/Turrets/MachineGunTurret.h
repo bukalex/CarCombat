@@ -33,11 +33,12 @@ protected:
 	UStaticMeshComponent* GunMesh;
 
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<AActor> BulletHitMetalVFX;
+	AProjectilePool* HitMetalVFXPool;
 
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<AActor> BulletHitGroundVFX;
+	AProjectilePool* HitGroundVFXPool;
 
+	virtual void BeginPlay() override;
 	virtual void Aim(float DeltaTime) override;
 	virtual void CheckIfLockedOnTarget() override;
 	virtual bool IsTargetWithinRotationLimit() override;

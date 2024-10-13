@@ -12,6 +12,12 @@ AMachineGunTurret::AMachineGunTurret()
 	GunMesh->SetupAttachment(JointMesh);
 }
 
+void AMachineGunTurret::BeginPlay()
+{
+	Super::BeginPlay();
+
+}
+
 void AMachineGunTurret::Aim(float DeltaTime)
 {
 	Super::Aim(DeltaTime);
@@ -84,13 +90,14 @@ void AMachineGunTurret::Fire(float DeltaTime)
 
 	if (ShotCounter == 0)
 	{
-		if (DestroyableActor)
+		AProjectile* VFX = nullptr;
+		if (DestroyableActor && HitMetalVFXPool) VFX = HitMetalVFXPool->GetProjectile(this);
+		else if (HitGroundVFXPool) VFX = HitGroundVFXPool->GetProjectile(this);
+
+		if (VFX)
 		{
-			if (BulletHitMetalVFX) GetWorld()->SpawnActor<AActor>(BulletHitMetalVFX, Hit.ImpactPoint, Hit.ImpactNormal.ToOrientationRotator());
-		}
-		else
-		{
-			if (BulletHitGroundVFX) GetWorld()->SpawnActor<AActor>(BulletHitGroundVFX, Hit.ImpactPoint, Hit.ImpactNormal.ToOrientationRotator());
+			VFX->SetActorLocationAndRotation(Hit.ImpactPoint, Hit.ImpactNormal.ToOrientationRotator());
+			VFX->ApplyLocationAndRotationOffset();
 		}
 	}
 }

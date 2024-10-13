@@ -30,10 +30,12 @@ void ACircularSaw::BeginPlay()
 void ACircularSaw::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 void ACircularSaw::OnColliderOverlap(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	
+	IDestroyable* DestroyableActor = Cast<IDestroyable>(OtherActor);
+	if (!DestroyableActor) return;
+
+	DestroyableActor->GetDamage(Damage * FApp::GetDeltaTime());
 }

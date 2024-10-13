@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "CarCombat/Interfaces/TurretTargetable.h"
+#include "CarCombat/Interfaces/Destroyable.h"
 #include "Components/CapsuleComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "CoreMinimal.h"
@@ -21,7 +21,7 @@ public:
 protected:
 	float ElapsedTime = 0;
 	float Interval = 0;
-	ITurretTargetable* Target;
+	IDestroyable* Target;
 
 	UPROPERTY(EditAnywhere)
 	float Duration;
@@ -31,6 +31,9 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	float MaxInterval;
+
+	UPROPERTY(EditAnywhere)
+	float Damage = 2;
 
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* BodyMesh;

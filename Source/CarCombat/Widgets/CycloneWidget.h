@@ -16,5 +16,8 @@ class CARCOMBAT_API UCycloneWidget : public UUserWidget
 	
 public:
 	UFUNCTION(BlueprintImplementableEvent)
+	void UpdateTimer(int Value);
+
+	UFUNCTION(BlueprintImplementableEvent)
 	void UpdateCycloneHealth(float Value);
 };

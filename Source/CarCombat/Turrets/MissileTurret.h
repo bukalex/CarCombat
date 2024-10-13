@@ -21,6 +21,9 @@ protected:
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* LauncherMesh;
 
+	UPROPERTY(EditAnywhere)
+	AProjectilePool* MissilePool;
+
 	virtual void Aim(float DeltaTime) override;
 	virtual void CheckIfLockedOnTarget() override;
 	virtual bool IsTargetWithinRotationLimit() override;

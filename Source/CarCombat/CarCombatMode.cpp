@@ -5,10 +5,24 @@
 
 void ACarCombatMode::BeginPlay()
 {
+	Super::BeginPlay();
+
 	if (!GameWidgetClass) return;
 	
 	GameWidget = Cast<UCycloneWidget>(CreateWidget(GetWorld(), GameWidgetClass));
 	GameWidget->AddToViewport();
+}
+
+void ACarCombatMode::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	Time -= DeltaTime;
+	Time = Time >= 0 ? Time : 0;
+
+	if (!GameWidget) return;
+
+	GameWidget->UpdateTimer(int(Time));
 }
 
 void ACarCombatMode::UpdateCarHealth(float Value)

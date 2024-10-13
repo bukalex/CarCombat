@@ -3,39 +3,40 @@
 #pragma once
 
 #include "CarCombat/Interfaces/Destroyable.h"
+#include "Particles/ParticleSystemComponent.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "CircularSaw.generated.h"
+#include "Projectile.generated.h"
 
 UCLASS()
-class CARCOMBAT_API ACircularSaw : public AActor
+class CARCOMBAT_API AProjectile : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	ACircularSaw();
+	AProjectile();
 
 protected:
-	UPROPERTY(EditAnywhere)
-	float Damage = 50;
+	bool bInPool = true;
+	AActor* ProjectileOwner;
 
 	UPROPERTY(EditAnywhere)
-	USkeletalMeshComponent* SawMesh;
+	FVector LocationOffset;
 
 	UPROPERTY(EditAnywhere)
-	UAnimationAsset* RotationAnim;
-
-	UPROPERTY(EditAnywhere)
-	UStaticMeshComponent* Collider;
+	FRotator RotationOffset;
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void ReturnToPool();
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	UFUNCTION()
-	void OnColliderOverlap(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	virtual void TakeFromPool();
+	virtual void ApplyLocationAndRotationOffset();
+	virtual void SetTarget(UPrimitiveComponent* Target);
+	virtual void SetProjectileOwner(AActor* NewOwner);
+	virtual bool IsInPool();
 };

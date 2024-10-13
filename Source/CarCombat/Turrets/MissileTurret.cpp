@@ -65,4 +65,16 @@ void AMissileTurret::Fire(float DeltaTime)
 
 	if (!bLockedOn) return;
 	if (CooldownTimer > 0) return;
+
+	CooldownTimer = CooldownDuration;
+
+	AProjectile* Missile = nullptr;
+	if (MissilePool) Missile = MissilePool->GetProjectile(this);
+
+	if (Missile)
+	{
+		Missile->SetActorLocationAndRotation(LauncherMesh->GetComponentLocation(), LauncherMesh->GetComponentRotation());
+		Missile->ApplyLocationAndRotationOffset();
+		Missile->SetTarget(Target->GetRootComponent());
+	}
 }

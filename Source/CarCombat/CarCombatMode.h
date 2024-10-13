@@ -19,9 +19,13 @@ protected:
 	UCycloneWidget* GameWidget;
 
 	UPROPERTY(EditAnywhere)
+	float Time = 120;
+
+	UPROPERTY(EditAnywhere)
 	TSubclassOf<class UUserWidget> GameWidgetClass;
 
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
 
 public:
 	void UpdateCarHealth(float Value);
