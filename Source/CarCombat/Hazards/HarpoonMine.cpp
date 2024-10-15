@@ -22,6 +22,7 @@ AHarpoonMine::AHarpoonMine()
 	Trigger = CreateDefaultSubobject<USphereComponent>("Trigger");
 	Trigger->SetupAttachment(BodyMesh);
 	Trigger->OnComponentBeginOverlap.AddDynamic(this, &AHarpoonMine::OnTriggerEnter);
+	Trigger->ComponentTags.Add("Trigger");
 }
 
 // Called when the game starts or when spawned

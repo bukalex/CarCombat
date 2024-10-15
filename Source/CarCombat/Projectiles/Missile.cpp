@@ -55,7 +55,7 @@ void AMissile::OnTriggerEnter(UPrimitiveComponent* OverlappedComponent, AActor* 
 {
 	if (IsInPool()) return;
 	if (OtherActor == ProjectileOwner) return;
-	if (!OtherComp->IsVisible()) return;
+	if (OtherComp->ComponentHasTag("Trigger")) return;
 
 	for (IDestroyable* Actor : AffectedActors)
 	{
@@ -69,7 +69,7 @@ void AMissile::OnExplosionZoneEnter(UPrimitiveComponent* OverlappedComponent, AA
 {
 	if (IsInPool()) return;
 	if (OtherActor == ProjectileOwner) return;
-	if (!OtherComp->IsVisible()) return;
+	if (OtherComp->ComponentHasTag("Trigger")) return;
 	if (!Cast<IDestroyable>(OtherActor)) return;
 
 	AffectedActors.Add(Cast<IDestroyable>(OtherActor));

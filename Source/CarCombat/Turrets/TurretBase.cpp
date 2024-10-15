@@ -16,6 +16,7 @@ ATurretBase::ATurretBase()
 	AttackZone->SetupAttachment(BaseMesh);
 	AttackZone->OnComponentBeginOverlap.AddDynamic(this, &ATurretBase::OnAttackZoneEnter);
 	AttackZone->OnComponentEndOverlap.AddDynamic(this, &ATurretBase::OnAttackZoneExit);
+	AttackZone->ComponentTags.Add("Trigger");
 }
 
 // Called when the game starts or when spawned

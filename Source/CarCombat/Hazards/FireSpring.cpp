@@ -20,6 +20,7 @@ AFireSpring::AFireSpring()
 	Trigger->SetupAttachment(BodyMesh);
 	Trigger->OnComponentBeginOverlap.AddDynamic(this, &AFireSpring::OnTriggerEnter);
 	Trigger->OnComponentEndOverlap.AddDynamic(this, &AFireSpring::OnTriggerExit);
+	Trigger->ComponentTags.Add("Trigger");
 }
 
 // Called when the game starts or when spawned
