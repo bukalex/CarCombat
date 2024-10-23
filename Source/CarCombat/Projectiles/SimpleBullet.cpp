@@ -5,6 +5,8 @@
 
 ASimpleBullet::ASimpleBullet()
 {
+	PrimaryActorTick.bCanEverTick = true;
+
 	Emitter = CreateDefaultSubobject<UParticleSystemComponent>("Emitter");
 	Emitter->Deactivate();
 	RootComponent = Emitter;
@@ -15,21 +17,20 @@ void ASimpleBullet::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (!IsInPool())
+	ElapsedTime += DeltaTime;
+	if (ElapsedTime >= Duration)
 	{
-		ElapsedTime += DeltaTime;
-		if (ElapsedTime >= Duration)
-		{
-			ReturnToPool();
-			ElapsedTime = 0;
-		}
+		Destroy();
 	}
 }
 
-void ASimpleBullet::TakeFromPool()
+void ASimpleBullet::BeginPlay()
 {
-	Super::TakeFromPool();
+	Super::BeginPlay();
 
 	Emitter->Activate();
 	Emitter->ResetNextTick();
+
+	AddActorLocalOffset(LocationOffset);
+	AddActorLocalRotation(RotationOffset);
 }

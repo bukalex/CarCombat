@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "CarCombat/Projectiles/Missile.h"
 #include "CoreMinimal.h"
 #include "TurretBase.h"
 #include "MissileTurret.generated.h"
@@ -22,7 +23,7 @@ protected:
 	UStaticMeshComponent* LauncherMesh;
 
 	UPROPERTY(EditAnywhere)
-	AProjectilePool* MissilePool;
+	TSubclassOf<AMissile> MissileClass;
 
 	virtual void Aim(float DeltaTime) override;
 	virtual void CheckIfLockedOnTarget() override;

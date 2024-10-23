@@ -86,6 +86,7 @@ USceneComponent* ATurretBase::GetFiringComponent()
 
 void ATurretBase::OnAttackZoneEnter(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (OtherComp->ComponentHasTag("Trigger")) return;
 	if (!Cast<ITurretTargetable>(OtherActor)) return;
 
 	Target = Cast<ITurretTargetable>(OtherActor);
@@ -93,6 +94,7 @@ void ATurretBase::OnAttackZoneEnter(UPrimitiveComponent* OverlappedComponent, AA
 
 void ATurretBase::OnAttackZoneExit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
+	if (OtherComp->ComponentHasTag("Trigger")) return;
 	if (!Target) return;
 	if (Target != Cast<ITurretTargetable>(OtherActor)) return;
 	

@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "Components/SphereComponent.h"
 #include "CarCombatMode.h"
 #include "Interfaces/Destroyable.h"
 #include "Interfaces/TurretTargetable.h"
@@ -74,6 +75,9 @@ protected:
 	UCameraComponent* Camera;
 
 	UPROPERTY(EditAnywhere)
+	USphereComponent* Radar;
+
+	UPROPERTY(EditAnywhere)
 	float CameraRotationRate = 1;
 
 	UPROPERTY(EditAnywhere)
@@ -117,4 +121,10 @@ public:
 
 	UFUNCTION()
 	void OnWheelGrounded(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
+	UFUNCTION()
+	void OnRadarEnter(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void OnRadarExit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 };

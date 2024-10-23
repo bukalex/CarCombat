@@ -90,14 +90,8 @@ void AMachineGunTurret::Fire(float DeltaTime)
 
 	if (ShotCounter == 0)
 	{
-		AProjectile* VFX = nullptr;
-		if (DestroyableActor && HitMetalVFXPool) VFX = HitMetalVFXPool->GetProjectile(this);
-		else if (HitGroundVFXPool) VFX = HitGroundVFXPool->GetProjectile(this);
-
-		if (VFX)
-		{
-			VFX->SetActorLocationAndRotation(Hit.ImpactPoint, Hit.ImpactNormal.ToOrientationRotator());
-			VFX->ApplyLocationAndRotationOffset();
-		}
+		ASimpleBullet* VFX = nullptr;
+		if (DestroyableActor && HitMetalVFX) VFX = GetWorld()->SpawnActor<ASimpleBullet>(HitMetalVFX, Hit.ImpactPoint, Hit.ImpactNormal.ToOrientationRotator());
+		else if (HitGroundVFX) VFX = GetWorld()->SpawnActor<ASimpleBullet>(HitGroundVFX, Hit.ImpactPoint, Hit.ImpactNormal.ToOrientationRotator());
 	}
 }

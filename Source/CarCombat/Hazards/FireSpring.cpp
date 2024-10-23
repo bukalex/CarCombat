@@ -78,6 +78,7 @@ void AFireSpring::BurnTick(float DeltaTime)
 
 void AFireSpring::OnTriggerEnter(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (OtherComp->ComponentHasTag("Trigger")) return;
 	if (!Cast<IDestroyable>(OtherActor)) return;
 
 	Target = Cast<IDestroyable>(OtherActor);
@@ -85,6 +86,7 @@ void AFireSpring::OnTriggerEnter(UPrimitiveComponent* OverlappedComponent, AActo
 
 void AFireSpring::OnTriggerExit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
+	if (OtherComp->ComponentHasTag("Trigger")) return;
 	if (!Target) return;
 	if (Target != Cast<IDestroyable>(OtherActor)) return;
 

@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "CarCombat/Projectiles/SimpleBullet.h"
 #include "CoreMinimal.h"
 #include "TurretBase.h"
 #include "MachineGunTurret.generated.h"
@@ -33,10 +34,10 @@ protected:
 	UStaticMeshComponent* GunMesh;
 
 	UPROPERTY(EditAnywhere)
-	AProjectilePool* HitMetalVFXPool;
+	TSubclassOf<ASimpleBullet> HitMetalVFX;
 
 	UPROPERTY(EditAnywhere)
-	AProjectilePool* HitGroundVFXPool;
+	TSubclassOf<ASimpleBullet> HitGroundVFX;
 
 	virtual void BeginPlay() override;
 	virtual void Aim(float DeltaTime) override;

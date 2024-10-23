@@ -52,6 +52,12 @@ ACyclone::ACyclone()
 
 	Camera = CreateDefaultSubobject<UCameraComponent>("Camera");
 	Camera->SetupAttachment(SpringArm);
+
+	Radar = CreateDefaultSubobject<USphereComponent>("Radar");
+	Radar->SetupAttachment(Body);
+	Radar->OnComponentBeginOverlap.AddDynamic(this, &ACyclone::OnRadarEnter);
+	Radar->OnComponentEndOverlap.AddDynamic(this, &ACyclone::OnRadarExit);
+	Radar->ComponentTags.Add("Trigger");
 }
 
 // Called when the game starts or when spawned
@@ -215,4 +221,28 @@ void ACyclone::ValidateGameMode()
 	if (GameMode == GetWorld()->GetAuthGameMode()) return;
 
 	GameMode = Cast<ACarCombatMode>(GetWorld()->GetAuthGameMode());
+}
+
+void ACyclone::OnRadarEnter(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherComp->ComponentHasTag("Trigger")) return;
+	if (!Cast<IDestroyable>(OtherActor)) return;
+
+	ValidateGameMode();
+	if (GameMode)
+	{
+		GameMode->ShowTarget(OtherActor);
+	}
+}
+
+void ACyclone::OnRadarExit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (OtherComp->ComponentHasTag("Trigger")) return;
+	if (!Cast<IDestroyable>(OtherActor)) return;
+
+	ValidateGameMode();
+	if (GameMode)
+	{
+		GameMode->HideTarget(OtherActor);
+	}
 }

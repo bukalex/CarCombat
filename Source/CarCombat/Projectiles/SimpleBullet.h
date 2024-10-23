@@ -2,15 +2,16 @@
 
 #pragma once
 
+#include "Particles/ParticleSystemComponent.h"
 #include "CoreMinimal.h"
-#include "Projectile.h"
+#include "GameFramework/Actor.h"
 #include "SimpleBullet.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class CARCOMBAT_API ASimpleBullet : public AProjectile
+class CARCOMBAT_API ASimpleBullet : public AActor
 {
 	GENERATED_BODY()
 	
@@ -22,12 +23,19 @@ protected:
 	float ElapsedTime = 0;
 
 	UPROPERTY(EditAnywhere)
+	FVector LocationOffset;
+
+	UPROPERTY(EditAnywhere)
+	FRotator RotationOffset;
+
+	UPROPERTY(EditAnywhere)
 	float Duration = 1;
 
 	UPROPERTY(EditAnywhere)
 	UParticleSystemComponent* Emitter;
 
+	virtual void BeginPlay() override;
+
 public:
 	virtual void Tick(float DeltaTime) override;
-	virtual void TakeFromPool() override;
 };

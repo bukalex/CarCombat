@@ -31,3 +31,17 @@ void ACarCombatMode::UpdateCarHealth(float Value)
 
 	GameWidget->UpdateCycloneHealth(Value);
 }
+
+void ACarCombatMode::ShowTarget(AActor* Target)
+{
+	if (!GameWidget) return;
+
+	GameWidget->ShowTarget(Target);
+}
+
+void ACarCombatMode::HideTarget(AActor* Target)
+{
+	if (!GameWidget) return;
+
+	GameWidget->HideTarget(Target);
+}

@@ -2,18 +2,20 @@
 
 #pragma once
 
+#include "CarCombat/Interfaces/Destroyable.h"
+#include "Particles/ParticleSystemComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "CoreMinimal.h"
-#include "Projectile.h"
+#include "GameFramework/Actor.h"
 #include "Missile.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class CARCOMBAT_API AMissile : public AProjectile
+class CARCOMBAT_API AMissile : public AActor
 {
 	GENERATED_BODY()
 	
@@ -21,7 +23,10 @@ public:
 	AMissile();
 
 protected:
+	float ElapsedTime = 0;
+	float Damage = 0;
 	TArray<IDestroyable*> AffectedActors;
+	bool bMarkedForDestroy = false;
 
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* Mesh;
@@ -41,11 +46,13 @@ protected:
 	UPROPERTY(EditAnywhere)
 	UParticleSystemComponent* ExplosionEmitter;
 
-	virtual void ReturnToPool() override;
+	UPROPERTY(EditAnywhere)
+	float Duration = 1;
+
+	virtual void Tick(float DeltaTime) override;
 
 public:
-	virtual void TakeFromPool() override;
-	virtual void SetTarget(UPrimitiveComponent* Target) override;
+	void InitializeMissile(UPrimitiveComponent* Target, float Damage, AActor* Owner);
 
 	UFUNCTION()
 	void OnTriggerEnter(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);

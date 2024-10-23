@@ -29,4 +29,6 @@ protected:
 
 public:
 	void UpdateCarHealth(float Value);
+	void ShowTarget(AActor* Target);
+	void HideTarget(AActor* Target);
 };

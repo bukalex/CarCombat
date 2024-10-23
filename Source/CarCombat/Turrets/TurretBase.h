@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include "CarCombat/Projectiles/ProjectilePool.h"
 #include "CarCombat/Interfaces/TurretTargetable.h"
 #include "CarCombat/Interfaces/Destroyable.h"
 #include "Components/SphereComponent.h"

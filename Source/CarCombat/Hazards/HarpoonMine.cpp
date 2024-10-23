@@ -41,6 +41,7 @@ void AHarpoonMine::Tick(float DeltaTime)
 
 void AHarpoonMine::OnTriggerEnter(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (OtherComp->ComponentHasTag("Trigger")) return;
 	if (Target) return;
 	
 	Target = Cast<ITurretTargetable>(OtherActor);

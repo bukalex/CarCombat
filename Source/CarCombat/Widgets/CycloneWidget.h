@@ -20,4 +20,10 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void UpdateCycloneHealth(float Value);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void ShowTarget(AActor* Target);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void HideTarget(AActor* Target);
 };

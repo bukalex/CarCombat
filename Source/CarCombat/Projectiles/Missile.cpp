@@ -5,19 +5,20 @@
 
 AMissile::AMissile()
 {
+	PrimaryActorTick.bCanEverTick = true;
+
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>("Mesh");
 	RootComponent = Mesh;
 
 	Trigger = CreateDefaultSubobject<UCapsuleComponent>("Trigger");
 	Trigger->SetupAttachment(Mesh);
 	Trigger->OnComponentBeginOverlap.AddDynamic(this, &AMissile::OnTriggerEnter);
-	Trigger->Deactivate();
+	Trigger->ComponentTags.Add("Trigger");
 
 	ExplosionZone = CreateDefaultSubobject<USphereComponent>("ExplosionZone");
 	ExplosionZone->SetupAttachment(Mesh);
 	ExplosionZone->OnComponentBeginOverlap.AddDynamic(this, &AMissile::OnExplosionZoneEnter);
 	ExplosionZone->OnComponentEndOverlap.AddDynamic(this, &AMissile::OnExplosionZoneExit);
-	ExplosionZone->Deactivate();
 
 	MovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>("MovementComponent");
 	MovementComponent->bIsHomingProjectile = true;
@@ -34,41 +35,56 @@ AMissile::AMissile()
 	ExplosionEmitter->Deactivate();
 }
 
-void AMissile::TakeFromPool()
-{
-	Super::TakeFromPool();
-
-	SmokeEmitter->Activate();
-	SmokeEmitter->ResetNextTick();
-	Trigger->Activate();
-	ExplosionZone->Activate();
-	Mesh->SetVisibility(true);
-}
-
-void AMissile::SetTarget(UPrimitiveComponent* Target)
+void AMissile::InitializeMissile(UPrimitiveComponent* Target, float MissileDamage, AActor* MissileOwner)
 {
 	MovementComponent->HomingTargetComponent = Target;
 	MovementComponent->Velocity = Mesh->GetForwardVector() * MovementComponent->InitialSpeed;
+
+	Damage = MissileDamage;
+	Owner = MissileOwner;
+
+	SmokeEmitter->Activate();
+	SmokeEmitter->ResetNextTick();
+}
+
+void AMissile::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (!bMarkedForDestroy) return;
+
+	ElapsedTime += DeltaTime;
+	if (ElapsedTime >= Duration)
+	{
+		Destroy();
+	}
 }
 
 void AMissile::OnTriggerEnter(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (IsInPool()) return;
-	if (OtherActor == ProjectileOwner) return;
+	if (!Owner) return;
+	if (OtherActor == Owner) return;
 	if (OtherComp->ComponentHasTag("Trigger")) return;
+
+	ExplosionEmitter->Activate();
+	ExplosionEmitter->ResetNextTick();
 
 	for (IDestroyable* Actor : AffectedActors)
 	{
-		//Actor->GetDamage();
+		Actor->GetDamage(Damage);
 	}
 
-	ReturnToPool();
+	Mesh->SetVisibility(false);
+	SmokeEmitter->Deactivate();
+	Trigger->Deactivate();
+	ExplosionZone->Deactivate();
+	MovementComponent->Deactivate();
+	bMarkedForDestroy = true;
 }
 
 void AMissile::OnExplosionZoneEnter(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (IsInPool()) return;
-	if (OtherActor == ProjectileOwner) return;
+	if (OtherActor == Owner) return;
 	if (OtherComp->ComponentHasTag("Trigger")) return;
 	if (!Cast<IDestroyable>(OtherActor)) return;
 
@@ -78,17 +94,4 @@ void AMissile::OnExplosionZoneEnter(UPrimitiveComponent* OverlappedComponent, AA
 void AMissile::OnExplosionZoneExit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	AffectedActors.Remove(Cast<IDestroyable>(OtherActor));
-}
-
-void AMissile::ReturnToPool()
-{
-	bInPool = true;
-	Mesh->SetVisibility(false);
-
-	SmokeEmitter->Deactivate();
-	ExplosionEmitter->Activate();
-	ExplosionEmitter->ResetNextTick();
-
-	Trigger->Deactivate();
-	ExplosionZone->Deactivate();
 }
