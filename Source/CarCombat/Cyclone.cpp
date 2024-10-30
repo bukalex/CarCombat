@@ -9,52 +9,14 @@ ACyclone::ACyclone()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	Body = CreateDefaultSubobject<UStaticMeshComponent>("Body Mesh");
-	Body->SetSimulatePhysics(true);
-	RootComponent = Body;
-
-	for (int32 i = 0; i < WheelCount; i++)
-	{
-		WheelComponentGroups.Add(CreateDefaultSubobject<USceneComponent>(FName("Wheel " + FString::FromInt(i + 1))));
-		WheelComponentGroups.Last()->SetupAttachment(Body);
-
-		WheelMeshes.Add(CreateDefaultSubobject<UStaticMeshComponent>(FName("Wheel Mesh " + FString::FromInt(i + 1))));
-		WheelMeshes.Last()->SetupAttachment(WheelComponentGroups.Last());
-		WheelMeshes.Last()->SetSimulatePhysics(true);
-		WheelMeshes.Last()->OnComponentHit.AddDynamic(this, &ACyclone::OnWheelGrounded);
-
-		WheelGroundCheckers.Add(false);
-		WheelLastContactTimers.Add(0);
-
-		WheelConstraints.Add(CreateDefaultSubobject<UPhysicsConstraintComponent>(FName("Physics Constraint " + FString::FromInt(i + 1))));
-		WheelConstraints.Last()->SetupAttachment(WheelComponentGroups.Last());
-
-		WheelConstraints.Last()->ComponentName1.ComponentName = WheelMeshes.Last()->GetFName();
-		WheelConstraints.Last()->ComponentName2.ComponentName = Body->GetFName();
-
-		if (!SteeringWheelNumbers.Contains(i + 1)) continue;
-
-		SteeringConstraints.Add(CreateDefaultSubobject<UPhysicsConstraintComponent>(FName("Steering Constraint " + FString::FromInt(i + 1))));
-		SteeringConstraints.Last()->SetupAttachment(WheelComponentGroups.Last());
-
-		SteeringConstraints.Last()->ComponentName1.ComponentName = WheelMeshes.Last()->GetFName();
-		SteeringConstraints.Last()->ComponentName2.ComponentName = Body->GetFName();
-	}
-
-	MachineGunJointMesh = CreateDefaultSubobject<UStaticMeshComponent>("Machine Gun Joint");
-	MachineGunJointMesh->SetupAttachment(Body);
-
-	MachineGunMesh = CreateDefaultSubobject<UStaticMeshComponent>("Machine Gun");
-	MachineGunMesh->SetupAttachment(MachineGunJointMesh);
-
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>("Spring Arm");
-	SpringArm->SetupAttachment(Body);
+	SpringArm->SetupAttachment(GetMesh());
 
 	Camera = CreateDefaultSubobject<UCameraComponent>("Camera");
 	Camera->SetupAttachment(SpringArm);
 
 	Radar = CreateDefaultSubobject<USphereComponent>("Radar");
-	Radar->SetupAttachment(Body);
+	Radar->SetupAttachment(GetMesh());
 	Radar->OnComponentBeginOverlap.AddDynamic(this, &ACyclone::OnRadarEnter);
 	Radar->OnComponentEndOverlap.AddDynamic(this, &ACyclone::OnRadarExit);
 	Radar->ComponentTags.Add("Trigger");
@@ -65,19 +27,12 @@ void ACyclone::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	MovementForce *= Body->GetMass();
 }
 
 // Called every frame
 void ACyclone::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	for (int32 i = 0; i < WheelCount; i++)
-	{
-		WheelLastContactTimers[i] += DeltaTime;
-		if (WheelLastContactTimers[i] > 0.1f) WheelGroundCheckers[i] = false;
-	}
 
 	GetAimLocation();
 	Aim(DeltaTime);
@@ -88,76 +43,70 @@ void ACyclone::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	PlayerInputComponent->BindAxis("MoveForward", this, &ACyclone::MoveForward);
-	PlayerInputComponent->BindAxis("TurnRight", this, &ACyclone::TurnRight);
-	
-	PlayerInputComponent->BindAxis("CameraYaw", this, &ACyclone::CameraYawInput);
-	PlayerInputComponent->BindAxis("CameraPitch", this, &ACyclone::CameraPitchInput);
-}
-
-void ACyclone::MoveForward(float Value)
-{
-	if (Value == 0) return;
-
-	for (UStaticMeshComponent* WheelMesh : WheelMeshes)
+	UEnhancedInputComponent* EnhancedInput = Cast<UEnhancedInputComponent>(PlayerInputComponent);
+	if (EnhancedInput)
 	{
-		if (!WheelGroundCheckers[WheelMeshes.IndexOfByKey(WheelMesh)]) continue;
-
-		Body->AddForceAtLocation(
-			WheelMesh->GetRightVector().Cross(Body->GetUpVector()) * FMath::Sign(FVector::DotProduct(WheelMesh->GetRightVector(), Body->GetRightVector())) * Value * MovementForce,
-			WheelMesh->GetComponentLocation());
+		EnhancedInput->BindAction(MoveForwardAction, ETriggerEvent::Triggered, this, &ACyclone::MoveForward);
+		EnhancedInput->BindAction(TurnRightAction, ETriggerEvent::Triggered, this, &ACyclone::TurnRight);
+		EnhancedInput->BindAction(RotateCameraAction, ETriggerEvent::Triggered, this, &ACyclone::CameraInput);
 	}
 
-	Body->SetPhysicsLinearVelocity(Body->GetComponentVelocity().GetClampedToMaxSize(MaxVelocity));
-}
-
-void ACyclone::TurnRight(float Value)
-{
-	float DeltaAngle = SteeringRate * FApp::GetDeltaTime() * (Value != 0 ? Value : -FMath::Sign(CurrentSteering));
-	CurrentSteering += DeltaAngle;
-	CurrentSteering = FMath::Clamp(CurrentSteering, -SteeringLimit, SteeringLimit);
-
-	for (UPhysicsConstraintComponent* Constraint : SteeringConstraints)
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	if (PlayerController)
 	{
-		Constraint->SetAngularOrientationTarget(FRotator(0, CurrentSteering, 0));
+		UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
+		if (Subsystem)
+		{
+			Subsystem->AddMappingContext(InputMapping, 0);
+		}
 	}
 }
 
-void ACyclone::CameraYawInput(float Value)
+void ACyclone::MoveForward(const FInputActionValue& Value)
 {
-	if (Value == 0) return;
-
-	SpringArm->AddRelativeRotation(FQuat(FVector(0, 0, 1), CameraRotationRate * Value * FApp::GetDeltaTime()));
+	GetVehicleMovement()->SetThrottleInput(Value.Get<float>());
 }
 
-void ACyclone::CameraPitchInput(float Value)
+void ACyclone::TurnRight(const FInputActionValue& Value)
 {
-	if (Value == 0) return;
 
-	float DeltaAngle = CameraRotationRate * Value * FApp::GetDeltaTime();
+}
+
+void ACyclone::CameraInput(const FInputActionValue& Value)
+{
+	FVector2D VectorValue = Value.Get<FVector2D>();
+
+	SpringArm->AddRelativeRotation(FQuat(FVector(0, 0, 1), CameraRotationRate * VectorValue.X * FApp::GetDeltaTime()));
+
+	float DeltaAngle = CameraRotationRate * -VectorValue.Y * FApp::GetDeltaTime();
 	if (Camera->GetRelativeRotation().Pitch < CameraMinAngle && DeltaAngle > 0) return;
 	if (Camera->GetRelativeRotation().Pitch > CameraMaxAngle && DeltaAngle < 0) return;
-
+	
 	Camera->AddLocalRotation(FQuat(FVector(0, 1, 0), DeltaAngle));
 }
 
-void ACyclone::OnWheelGrounded(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
-{
-	float Angle = FMath::Acos(FVector::UpVector.Dot(Hit.ImpactNormal));
-	Angle = FMath::RadiansToDegrees(Angle);
-
-	WheelGroundCheckers[WheelMeshes.IndexOfByKey(HitComponent)] = Angle <= MaxSurfaceAngle;
-	WheelLastContactTimers[WheelMeshes.IndexOfByKey(HitComponent)] = 0;
-}
+//void ACyclone::CameraYawInput(const FInputActionValue& Value)
+//{
+//	//SpringArm->AddRelativeRotation(FQuat(FVector(0, 0, 1), CameraRotationRate * Value * FApp::GetDeltaTime()));
+//}
+//
+//void ACyclone::CameraPitchInput(const FInputActionValue& Value)
+//{
+//	//float DeltaAngle = CameraRotationRate * Value * FApp::GetDeltaTime();
+//	//if (Camera->GetRelativeRotation().Pitch < CameraMinAngle && DeltaAngle > 0) return;
+//	//if (Camera->GetRelativeRotation().Pitch > CameraMaxAngle && DeltaAngle < 0) return;
+//	//
+//	//Camera->AddLocalRotation(FQuat(FVector(0, 1, 0), DeltaAngle));
+//}
 
 FVector ACyclone::GetTargetLocation()
 {
-	return Body->GetComponentLocation() + Body->GetUpVector() * 20;
+	return GetMesh()->GetComponentLocation() + GetMesh()->GetUpVector() * 20;
 }
 
 UPrimitiveComponent* ACyclone::GetRootComponent()
 {
-	return Body;
+	return GetMesh();
 }
 
 void ACyclone::GetAimLocation()
@@ -183,13 +132,13 @@ void ACyclone::Aim(float DeltaTime)
 {
 	if (AimLocation.IsZero()) return;
 
-	FVector LookDirection = FMath::VInterpNormalRotationTo(
-		MachineGunMesh->GetForwardVector(),
-		(AimLocation - MachineGunMesh->GetComponentLocation()).GetUnsafeNormal(),
-		DeltaTime,
-		MachineGunRotationRate);
-	FVector BaseLookDirection = FVector::VectorPlaneProject(LookDirection, Body->GetUpVector());
-	FVector MachineGunLookDirection = FVector::VectorPlaneProject(LookDirection, MachineGunJointMesh->GetRightVector());
+	//FVector LookDirection = FMath::VInterpNormalRotationTo(
+	//	MachineGunMesh->GetForwardVector(),
+	//	(AimLocation - MachineGunMesh->GetComponentLocation()).GetUnsafeNormal(),
+	//	DeltaTime,
+	//	MachineGunRotationRate);
+	//FVector BaseLookDirection = FVector::VectorPlaneProject(LookDirection, Body->GetUpVector());
+	//FVector MachineGunLookDirection = FVector::VectorPlaneProject(LookDirection, MachineGunJointMesh->GetRightVector());
 
 	//MachineGunJointMesh->AddRelativeRotation(FQuat::FindBetweenNormals(MachineGunJointMesh->GetForwardVector(), BaseLookDirection.GetUnsafeNormal()));
 	//MachineGunJointMesh->SetRelativeRotation(FQuat(
